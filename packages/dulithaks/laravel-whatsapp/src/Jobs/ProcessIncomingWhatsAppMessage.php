@@ -37,14 +37,30 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
     public function handle(WhatsAppService $whatsapp): void
     {
+        Log::info('[ProcessIncomingWhatsAppMessage] Job started', [
+            'message' => $this->message,
+        ]);
+
         $messageId = $this->message['id']        ?? null;
         $from      = $this->message['from']      ?? null;
         $timestamp = $this->message['timestamp'] ?? null;
         $type      = $this->message['type']      ?? null;
 
+        Log::info('[ProcessIncomingWhatsAppMessage] Extracted fields', [
+            'messageId' => $messageId,
+            'from' => $from,
+            'timestamp' => $timestamp,
+            'type' => $type,
+        ]);
+
         // ── Validate required fields ─────────────────────────────────────────
         if (!$messageId || !$from || !$timestamp || !$type) {
-            Log::warning('WhatsApp webhook: Missing required message fields');
+            Log::warning('[ProcessIncomingWhatsAppMessage] Missing required message fields', [
+                'messageId' => $messageId,
+                'from' => $from,
+                'timestamp' => $timestamp,
+                'type' => $type,
+            ]);
             return;
         }
 
@@ -223,7 +239,20 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         $body = $type === 'text' ? ($messageData['text'] ?? null) : json_encode($messageData);
         $toPhone = $this->value['metadata']['display_phone_number'] ?? config('whatsapp.phone_id');
 
+        Log::info('[ProcessIncomingWhatsAppMessage] About to save message', [
+            'messageId' => $messageId,
+            'from' => $from,
+            'to' => $toPhone,
+            'type' => $type,
+            'body' => substr($body ?? '', 0, 100),
+        ]);
+
         if ($existing) {
+            Log::info('[ProcessIncomingWhatsAppMessage] Message exists, updating', [
+                'existing_id' => $existing->id,
+                'messageId' => $messageId,
+            ]);
+
             // Preserve higher-priority status (e.g. placeholder already has 'read')
             $statusToUse = $this->statusShouldUpdate($existing->status, 'delivered')
                 ? 'delivered'
@@ -242,8 +271,13 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             ]);
 
             $waMessage = $existing->fresh();
+            Log::info('[ProcessIncomingWhatsAppMessage] Message updated successfully', [
+                'id' => $waMessage->id,
+            ]);
         } else {
-            $isNewRecord = true;
+            Log::info('[ProcessIncomingWhatsAppMessage] Creating new message', [
+                'messageId' => $messageId,
+            ]);
 
             $waMessage = WhatsAppMessage::create([
                 'wa_message_id' => $messageId,
@@ -254,6 +288,11 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'body'          => $body,
                 'status'        => 'delivered',
                 'payload'       => $messageData,
+            ]);
+
+            Log::info('[ProcessIncomingWhatsAppMessage] Message created successfully', [
+                'id' => $waMessage->id,
+                'wa_message_id' => $waMessage->wa_message_id,
             ]);
         }
 
