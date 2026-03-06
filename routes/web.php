@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
-// WhatsApp Webhook Routes - Meta calls this endpoint (no CSRF needed)
-Route::prefix('webhook')->withoutMiddleware('csrf')->group(function () {
+// WhatsApp Webhook Routes - Meta calls this endpoint
+Route::prefix('webhook')->group(function () {
     Route::get('/', [\Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
     Route::post('/', [\Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController::class, 'receive'])
         ->middleware('throttle:60,1')
