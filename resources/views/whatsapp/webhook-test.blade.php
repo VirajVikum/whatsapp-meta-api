@@ -19,7 +19,7 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-blue-700">Webhook URL:</span>
-                            <code class="text-blue-900 font-mono">{{ route('whatsapp.webhook.receive', [], false) }}</code>
+                            <code class="text-blue-900 font-mono">/webhook</code>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-blue-700">Verify Token:</span>
@@ -139,7 +139,7 @@
             try {
                 const verifyToken = '{{ config("whatsapp.verify_token") }}';
                 const challenge = 'test_challenge_' + Date.now();
-                const url = '{{ route("whatsapp.webhook.verify", [], false) }}?hub_mode=subscribe&hub_verify_token=' + encodeURIComponent(verifyToken) + '&hub_challenge=' + encodeURIComponent(challenge);
+                const url = '/webhook?hub_mode=subscribe&hub_verify_token=' + encodeURIComponent(verifyToken) + '&hub_challenge=' + encodeURIComponent(challenge);
                 
                 const response = await fetch(url);
                 const text = await response.text();
@@ -148,7 +148,7 @@
                     showResults('✅ Webhook Verification Test', {
                         status: 'success',
                         message: 'Webhook verification endpoint is working correctly!',
-                        webhook_url: '{{ route("whatsapp.webhook.verify", [], false) }}',
+                        webhook_url: '/webhook',
                         verify_token_set: true,
                         response_status: response.status,
                         challenge_verified: text === challenge
