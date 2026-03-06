@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
-// WhatsApp Webhook Routes (matching Meta's configuration)
+// WhatsApp Webhook Routes - Meta calls this endpoint
 Route::prefix('webhook')->group(function () {
     Route::get('/', [\Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
     Route::post('/', [\Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController::class, 'receive'])
