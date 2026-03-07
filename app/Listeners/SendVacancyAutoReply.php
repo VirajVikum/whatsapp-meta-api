@@ -14,7 +14,7 @@ class SendVacancyAutoReply
     {
         $message = $event->message;
 
-        \Log::info('Processing WhatsApp message for vacancy auto-reply', [
+        \Log::info('Processing WhatsApp message for auto-reply', [
             'message_id' => $message->wa_message_id,
             'from_phone' => $message->from_phone,
             'direction' => $message->direction,
@@ -29,27 +29,18 @@ class SendVacancyAutoReply
         }
 
         // Check if already sent auto-reply for this message (prevent duplicates)
-        if (cache('vacancy_autoreply_sent_'.$message->wa_message_id)) {
+        if (cache('autoreply_sent_'.$message->wa_message_id)) {
             \Log::debug('Auto-reply already sent for this message', ['id' => $message->wa_message_id]);
 
             return;
         }
 
-        // Check if message body contains vacancy-related keywords (case-insensitive)
-        $vacancyKeywords = ['vacancy', 'vacancies', 'opportunity', 'opportunities'];
-        $bodyLower = strtolower($message->body ?? '');
-        $hasKeyword = false;
+        $body = $message->body ?? '';
+        $bodyLower = strtolower($body);
 
-        foreach ($vacancyKeywords as $keyword) {
-            if (stripos($bodyLower, $keyword) !== false) {
-                $hasKeyword = true;
-
-                break;
-            }
-        }
-
-        if (! $message->body || ! $hasKeyword) {
-            \Log::debug('Message does not contain vacancy keywords', ['id' => $message->wa_message_id]);
+        // Skip "ok/OK/Ok" messages - don't reply
+        if (in_array($body, ['ok', 'OK', 'Ok'])) {
+            \Log::debug('Skipping OK message - no reply needed', ['id' => $message->wa_message_id]);
 
             return;
         }
@@ -63,27 +54,63 @@ class SendVacancyAutoReply
             return;
         }
 
-        // Mark this message as processed (prevent duplicate auto-replies)
-        cache()->put('vacancy_autoreply_sent_'.$message->wa_message_id, true, now()->addHours(24));
+        // Determine which auto-reply to send
+        $autoReplyText = null;
 
-        \Log::info('Sending vacancy auto-reply', [
+        // Check for vacancy-related keywords
+        $vacancyKeywords = ['vacancy', 'vacancies', 'opportunity', 'opportunities'];
+        $hasVacancyKeyword = false;
+
+        foreach ($vacancyKeywords as $keyword) {
+            if (stripos($bodyLower, $keyword) !== false) {
+                $hasVacancyKeyword = true;
+
+                break;
+            }
+        }
+
+        // Check for company/service-related keywords
+        $companyKeywords = ['callcenter', 'auso', 'ausoworld'];
+        $hasCompanyKeyword = false;
+
+        foreach ($companyKeywords as $keyword) {
+            if (stripos($bodyLower, $keyword) !== false) {
+                $hasCompanyKeyword = true;
+
+                break;
+            }
+        }
+
+        // Determine which reply to send
+        if ($hasVacancyKeyword) {
+            $autoReplyText = 'Hello! Thank you for your interest. Could you please send us your CV so we can review your experience and get back to you? We look forward to hearing from you.';
+        } elseif ($hasCompanyKeyword) {
+            $autoReplyText = 'Hello,
+Welcome to Auso World Pvt Ltd.
+Please send us your inquiry. We will be happy to share more details with you.';
+        } else {
+            $autoReplyText = 'Thank you for your interest in Auso World Pvt Ltd. One of our Customer Service Executive will contact you as soon as possible.';
+        }
+
+        // Mark this message as processed (prevent duplicate auto-replies)
+        cache()->put('autoreply_sent_'.$message->wa_message_id, true, now()->addHours(24));
+
+        \Log::info('Sending auto-reply', [
             'sender_phone' => $senderPhone,
             'message_id' => $message->wa_message_id,
+            'reply_type' => $hasVacancyKeyword ? 'vacancy' : ($hasCompanyKeyword ? 'company' : 'generic'),
         ]);
-
-        // Prepare auto-reply message
-        $autoReplyText = 'Hello! Thank you for contacting Auso World Pvt Ltd. Kindly share your CV with us so we can review your profile. We appreciate your interest and look forward to hearing from you.';
 
         try {
             // Send the auto-reply
             WhatsApp::sendMessage($senderPhone, $autoReplyText);
 
-            \Log::info('Vacancy auto-reply sent successfully', [
+            \Log::info('Auto-reply sent successfully', [
                 'sender_phone' => $senderPhone,
                 'message_id' => $message->wa_message_id,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to send vacancy auto-reply', [
+            \Log::error('Failed to send auto-reply', [
                 'phone' => $senderPhone,
                 'message_id' => $message->wa_message_id,
                 'error' => $e->getMessage(),
