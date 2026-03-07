@@ -72,7 +72,7 @@ class SendVacancyAutoReply
         ]);
 
         // Prepare auto-reply message
-        $autoReplyText = 'Hello! Thank you for your interest. Could you please send us your CV so we can review your experience and get back to you? We look forward to hearing from you.';
+        $autoReplyText = 'Hello! Thank you for contacting Auso World Pvt Ltd. Kindly share your CV with us so we can review your profile. We appreciate your interest and look forward to hearing from you.';
 
         try {
             // Send the auto-reply
