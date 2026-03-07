@@ -85,11 +85,11 @@ class SendVacancyAutoReply
         if ($hasVacancyKeyword) {
             $autoReplyText = 'Hello! Thank you for your interest. Could you please send us your CV so we can review your experience and get back to you? We look forward to hearing from you.';
         } elseif ($hasCompanyKeyword) {
+            $autoReplyText = 'Thank you for your interest in Auso World Pvt Ltd. One of our Customer Service Executive will contact you as soon as possible.';
+        } else {
             $autoReplyText = 'Hello,
 Welcome to Auso World Pvt Ltd.
 Please send us your inquiry. We will be happy to share more details with you.';
-        } else {
-            $autoReplyText = 'Thank you for your interest in Auso World Pvt Ltd. One of our Customer Service Executive will contact you as soon as possible.';
         }
 
         // Mark this message as processed (prevent duplicate auto-replies)
