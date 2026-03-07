@@ -17,15 +17,12 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between">
                         <h3 class="font-medium text-gray-900 truncate">
-                            {{ $conversation->display_name ?? $conversation->phone_number }}
+                            {{ $conversation->phone_number }}
                         </h3>
                         <span class="text-xs text-gray-500 flex-shrink-0 ml-2">
                             {{ $conversation->last_message_date?->format('H:i') ?? '' }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-600 truncate mt-1">
-                        {{ $conversation->phone_number }}
-                    </p>
                 </div>
 
                 <!-- Unread Badge -->
