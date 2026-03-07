@@ -18,6 +18,7 @@
             class="flex-1 border border-gray-300 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-green-500 transition resize-none max-h-24"
             rows="1"
             required
+            @keydown.enter.prevent="if (!$event.shiftKey) { $el.form.dispatchEvent(new Event('submit')); }"
         ></textarea>
 
         <!-- Emoji Button -->
