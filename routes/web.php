@@ -4,7 +4,7 @@ use App\Http\Controllers\CustomWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // WhatsApp Webhook Routes - Meta calls this endpoint
-Route::prefix('webhook_new')->group(function () {
+Route::prefix('webhook')->group(function () {
     // GET: Webhook verification (called by Meta during setup)
     Route::get('/', [\Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook.verify');
     
@@ -23,8 +23,8 @@ Route::get('/health', function () {
     ]);
 })->name('health.check');
 
-Route::get('/webhook', [CustomWebhookController::class, 'verify']);
-Route::post('/webhook', [CustomWebhookController::class, 'receive']);
+// Route::get('/webhook/whatsapp', [CustomWebhookController::class, 'verify']);
+// Route::post('/webhook/whatsapp', [CustomWebhookController::class, 'receive']);
 
 require __DIR__.'/settings.php';
 
