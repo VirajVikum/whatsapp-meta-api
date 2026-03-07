@@ -2,12 +2,9 @@
 
 namespace App\Providers;
 
-use App\Listeners\SendVacancyAutoReply;
 use Carbon\CarbonImmutable;
-use Duli\WhatsApp\Events\WhatsAppMessageReceived;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -27,18 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-        $this->registerEventListeners();
-    }
-
-    /**
-     * Register event listeners.
-     */
-    protected function registerEventListeners(): void
-    {
-        Event::listen(
-            WhatsAppMessageReceived::class,
-            SendVacancyAutoReply::class
-        );
     }
 
     /**

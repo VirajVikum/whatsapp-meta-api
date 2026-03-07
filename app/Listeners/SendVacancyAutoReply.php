@@ -28,9 +28,28 @@ class SendVacancyAutoReply
             return;
         }
 
-        // Check if message body contains "vacancy" keyword (case-insensitive)
-        if (! $message->body || stripos($message->body, 'vacancy') === false) {
-            \Log::debug('Message does not contain vacancy keyword', ['id' => $message->wa_message_id]);
+        // Check if already sent auto-reply for this message (prevent duplicates)
+        if (cache('vacancy_autoreply_sent_'.$message->wa_message_id)) {
+            \Log::debug('Auto-reply already sent for this message', ['id' => $message->wa_message_id]);
+
+            return;
+        }
+
+        // Check if message body contains vacancy-related keywords (case-insensitive)
+        $vacancyKeywords = ['vacancy', 'vacancies', 'opportunity', 'opportunities'];
+        $bodyLower = strtolower($message->body ?? '');
+        $hasKeyword = false;
+
+        foreach ($vacancyKeywords as $keyword) {
+            if (stripos($bodyLower, $keyword) !== false) {
+                $hasKeyword = true;
+
+                break;
+            }
+        }
+
+        if (! $message->body || ! $hasKeyword) {
+            \Log::debug('Message does not contain vacancy keywords', ['id' => $message->wa_message_id]);
 
             return;
         }
@@ -43,6 +62,9 @@ class SendVacancyAutoReply
 
             return;
         }
+
+        // Mark this message as processed (prevent duplicate auto-replies)
+        cache()->put('vacancy_autoreply_sent_'.$message->wa_message_id, true, now()->addHours(24));
 
         \Log::info('Sending vacancy auto-reply', [
             'sender_phone' => $senderPhone,
