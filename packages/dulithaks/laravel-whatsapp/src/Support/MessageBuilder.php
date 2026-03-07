@@ -9,10 +9,9 @@ class MessageBuilder
 {
     /**
      * Build a list section
-     * 
-     * @param string $title Section title
-     * @param array $rows Array of rows [['id' => '', 'title' => '', 'description' => ''], ...]
-     * @return array
+     *
+     * @param  string  $title  Section title
+     * @param  array  $rows  Array of rows [['id' => '', 'title' => '', 'description' => ''], ...]
      */
     public static function buildListSection(string $title, array $rows): array
     {
@@ -30,10 +29,9 @@ class MessageBuilder
 
     /**
      * Build buttons for interactive message
-     * 
-     * @param array $buttons Array of buttons [['id' => '', 'title' => ''], ...]
-     * @param int $max Maximum buttons (default: 3)
-     * @return array
+     *
+     * @param  array  $buttons  Array of buttons [['id' => '', 'title' => ''], ...]
+     * @param  int  $max  Maximum buttons (default: 3)
      */
     public static function buildButtons(array $buttons, int $max = 3): array
     {
@@ -47,10 +45,9 @@ class MessageBuilder
 
     /**
      * Format phone number to international format
-     * 
-     * @param string $phone Phone number
-     * @param string|null $countryCode Country code (e.g., '1' for US)
-     * @return string
+     *
+     * @param  string  $phone  Phone number
+     * @param  string|null  $countryCode  Country code (e.g., '1' for US)
      */
     public static function formatPhoneNumber(string $phone, ?string $countryCode = null): string
     {
@@ -61,8 +58,8 @@ class MessageBuilder
         $phone = ltrim($phone, '0');
 
         // Add country code if provided and not already present
-        if ($countryCode && !str_starts_with($phone, $countryCode)) {
-            $phone = $countryCode . $phone;
+        if ($countryCode && ! str_starts_with($phone, $countryCode)) {
+            $phone = $countryCode.$phone;
         }
 
         return $phone;
@@ -70,9 +67,8 @@ class MessageBuilder
 
     /**
      * Validate phone number format
-     * 
-     * @param string $phone Phone number
-     * @return bool
+     *
+     * @param  string  $phone  Phone number
      */
     public static function isValidPhoneNumber(string $phone): bool
     {
@@ -82,11 +78,10 @@ class MessageBuilder
 
     /**
      * Truncate text to maximum length
-     * 
-     * @param string $text Text to truncate
-     * @param int $maxLength Maximum length
-     * @param string $suffix Suffix to add if truncated
-     * @return string
+     *
+     * @param  string  $text  Text to truncate
+     * @param  int  $maxLength  Maximum length
+     * @param  string  $suffix  Suffix to add if truncated
      */
     public static function truncateText(string $text, int $maxLength, string $suffix = '...'): string
     {
@@ -94,6 +89,6 @@ class MessageBuilder
             return $text;
         }
 
-        return mb_substr($text, 0, $maxLength - mb_strlen($suffix)) . $suffix;
+        return mb_substr($text, 0, $maxLength - mb_strlen($suffix)).$suffix;
     }
 }

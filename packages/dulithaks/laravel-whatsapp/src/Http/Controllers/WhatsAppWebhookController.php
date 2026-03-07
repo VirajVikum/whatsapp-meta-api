@@ -48,9 +48,9 @@ class WhatsAppWebhookController
         ]);
 
         // Verify webhook signature — the only blocking work we do here
-        if (!$this->verifySignature($request)) {
+        if (! $this->verifySignature($request)) {
             Log::warning('WhatsApp webhook signature verification failed', [
-                'ip'         => $request->ip(),
+                'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
             // TEMPORARY: Allow webhook to proceed even if signature fails (for debugging)
@@ -63,11 +63,11 @@ class WhatsAppWebhookController
 
         Log::info('WhatsApp Webhook Event Received', [
             'entry_count' => count($entry),
-            'timestamp'   => now()->toIso8601String(),
+            'timestamp' => now()->toIso8601String(),
         ]);
 
         $connection = config('whatsapp.queue.connection');
-        $queue      = config('whatsapp.queue.name', 'default');
+        $queue = config('whatsapp.queue.name', 'default');
 
         foreach ($entry as $change) {
             foreach ($change['changes'] ?? [] as $changeData) {
@@ -97,27 +97,29 @@ class WhatsAppWebhookController
     {
         $signature = $request->header('X-Hub-Signature-256');
 
-        if (!$signature) {
+        if (! $signature) {
             Log::error('WhatsApp webhook: Missing X-Hub-Signature-256 header');
+
             return false;
         }
 
         $appSecret = config('whatsapp.app_secret');
 
-        if (!$appSecret) {
+        if (! $appSecret) {
             Log::error('WhatsApp webhook: app_secret not configured — set WHATSAPP_APP_SECRET in .env');
+
             return false;
         }
 
         $payload = $request->getContent();
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $appSecret);
+        $expectedSignature = 'sha256='.hash_hmac('sha256', $payload, $appSecret);
 
         $match = hash_equals($expectedSignature, $signature);
-        
-        if (!$match) {
+
+        if (! $match) {
             Log::warning('WhatsApp webhook signature mismatch', [
-                'received' => substr($signature, 0, 20) . '***',
-                'expected' => substr($expectedSignature, 0, 20) . '***',
+                'received' => substr($signature, 0, 20).'***',
+                'expected' => substr($expectedSignature, 0, 20).'***',
                 'payload_length' => strlen($payload),
             ]);
         } else {

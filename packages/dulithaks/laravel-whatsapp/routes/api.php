@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController;
+use Illuminate\Support\Facades\Route;
 
 $prefix = config('whatsapp.webhook.prefix', 'webhook');
 $middleware = config('whatsapp.webhook.middleware', ['api']);

@@ -1,12 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
-
 test('webhook verify endpoint returns challenge on valid token', function () {
     $verifyToken = config('whatsapp.verify_token');
     $challenge = 'test_challenge_123';
 
-    $response = $this->get(route('whatsapp.webhook.verify', [], false) . '?hub.mode=subscribe&hub.verify_token=' . urlencode($verifyToken) . '&hub.challenge=' . urlencode($challenge));
+    $response = $this->get(route('whatsapp.webhook.verify', [], false).'?hub.mode=subscribe&hub.verify_token='.urlencode($verifyToken).'&hub.challenge='.urlencode($challenge));
 
     $response->assertStatus(200);
     expect($response->getContent())->toBe($challenge);
@@ -40,7 +38,7 @@ test('webhook receive endpoint accepts valid payload with correct signature', fu
                                 [
                                     'from' => '1234567890',
                                     'id' => 'wamid.test.12345',
-                                    'timestamp' => (string)now()->timestamp,
+                                    'timestamp' => (string) now()->timestamp,
                                     'type' => 'text',
                                     'text' => [
                                         'body' => 'Test message',
@@ -57,7 +55,7 @@ test('webhook receive endpoint accepts valid payload with correct signature', fu
 
     $payloadJson = json_encode($payload);
     $appSecret = config('whatsapp.app_secret');
-    $signature = 'sha256=' . hash_hmac('sha256', $payloadJson, $appSecret);
+    $signature = 'sha256='.hash_hmac('sha256', $payloadJson, $appSecret);
 
     $response = $this->postJson(route('whatsapp.webhook.receive', [], false), $payload, [
         'X-Hub-Signature-256' => $signature,
@@ -79,7 +77,7 @@ test('webhook receive endpoint rejects invalid signature', function () {
                                 [
                                     'from' => '1234567890',
                                     'id' => 'wamid.test.12345',
-                                    'timestamp' => (string)now()->timestamp,
+                                    'timestamp' => (string) now()->timestamp,
                                     'type' => 'text',
                                     'text' => ['body' => 'Test'],
                                 ],
@@ -98,4 +96,3 @@ test('webhook receive endpoint rejects invalid signature', function () {
     $response->assertStatus(403);
     expect($response->json('error'))->toBe('Invalid signature');
 });
-

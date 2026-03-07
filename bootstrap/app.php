@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook',
             'webhook/*',
         ]);
-        
+
         $middleware->group('api', [
             // API middleware group
         ]);

@@ -12,11 +12,11 @@ trait WebhookHelpers
      * Higher value = higher priority.
      */
     protected const STATUS_HIERARCHY = [
-        'pending'   => 0,
-        'sent'      => 1,
+        'pending' => 0,
+        'sent' => 1,
         'delivered' => 2,
-        'read'      => 3,
-        'failed'    => 4,
+        'read' => 3,
+        'failed' => 4,
     ];
 
     /**
@@ -42,7 +42,7 @@ trait WebhookHelpers
     protected function statusShouldUpdate(string $currentStatus, string $newStatus): bool
     {
         $currentPriority = self::STATUS_HIERARCHY[$currentStatus] ?? -1;
-        $newPriority     = self::STATUS_HIERARCHY[$newStatus]     ?? -1;
+        $newPriority = self::STATUS_HIERARCHY[$newStatus] ?? -1;
 
         return $newPriority >= $currentPriority;
     }

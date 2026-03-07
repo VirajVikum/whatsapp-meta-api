@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Duli\WhatsApp\Facades\WhatsApp;
 use Duli\WhatsApp\Exceptions\WhatsAppException;
+use Duli\WhatsApp\Facades\WhatsApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Example controller demonstrating WhatsApp package usage
- * 
+ *
  * Copy this to your app/Http/Controllers directory and customize as needed
  */
 class WhatsAppExampleController extends Controller
@@ -31,7 +31,7 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Welcome message sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             Log::error('Failed to send welcome message', [
@@ -42,7 +42,7 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send message',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -68,13 +68,13 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Order confirmation sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send order confirmation',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -104,13 +104,13 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Menu sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send menu',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -129,15 +129,15 @@ class WhatsAppExampleController extends Controller
                     'rows' => [
                         ['id' => 'prod_1', 'title' => 'Laptop', 'description' => '$999 - High performance'],
                         ['id' => 'prod_2', 'title' => 'Phone', 'description' => '$699 - Latest model'],
-                    ]
+                    ],
                 ],
                 [
                     'title' => 'Accessories',
                     'rows' => [
                         ['id' => 'prod_3', 'title' => 'Headphones', 'description' => '$199 - Noise cancelling'],
                         ['id' => 'prod_4', 'title' => 'Charger', 'description' => '$29 - Fast charging'],
-                    ]
-                ]
+                    ],
+                ],
             ];
 
             $response = WhatsApp::sendList(
@@ -152,13 +152,13 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Product list sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send product list',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -183,13 +183,13 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send invoice',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -213,20 +213,20 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Location sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send location',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Upload an image and send it
-     * 
+     *
      * Example: Upload from a local file path
      */
     public function uploadAndSendImage(Request $request)
@@ -245,20 +245,20 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Image uploaded and sent',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload and send image',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Upload an image from form request and send
-     * 
+     *
      * Example: Handle image upload from a form
      */
     public function uploadFromRequest(Request $request)
@@ -267,7 +267,7 @@ class WhatsAppExampleController extends Controller
             $request->validate([
                 'phone' => 'required|string',
                 'image' => 'required|image|max:5120', // max 5MB
-                'caption' => 'nullable|string|max:1024'
+                'caption' => 'nullable|string|max:1024',
             ]);
 
             $phone = $request->input('phone');
@@ -287,7 +287,7 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Image uploaded and sent successfully',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (WhatsAppException $e) {
             Log::error('Failed to upload image from request', [
@@ -298,27 +298,27 @@ class WhatsAppExampleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload image',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
 
     /**
      * Upload image and get media ID for later use
-     * 
+     *
      * Example: Upload image and store media ID in database
      */
     public function uploadImageOnly(Request $request)
     {
         try {
             $request->validate([
-                'image' => 'required|image|max:5120'
+                'image' => 'required|image|max:5120',
             ]);
 
             // Upload and get media ID
@@ -328,13 +328,13 @@ class WhatsAppExampleController extends Controller
                 'success' => true,
                 'message' => 'Image uploaded successfully',
                 'media_id' => $mediaId,
-                'note' => 'Media ID is valid for ~30 days and can be reused'
+                'note' => 'Media ID is valid for ~30 days and can be reused',
             ]);
         } catch (WhatsAppException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload image',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

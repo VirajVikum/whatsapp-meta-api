@@ -4,16 +4,19 @@ namespace Duli\WhatsApp;
 
 use Duli\WhatsApp\Exceptions\WhatsAppException;
 use Duli\WhatsApp\Models\WhatsAppMessage;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WhatsAppService
 {
     protected string $phoneId;
+
     protected string $token;
+
     protected string $apiUrl;
+
     protected string $apiVersion;
 
     public function __construct()
@@ -27,11 +30,12 @@ class WhatsAppService
 
     /**
      * Send a simple text message
-     * 
-     * @param string $to Phone number in international format (e.g., 1234567890)
-     * @param string $message Message text (max 4096 characters)
-     * @param bool $preview_url Enable URL preview
+     *
+     * @param  string  $to  Phone number in international format (e.g., 1234567890)
+     * @param  string  $message  Message text (max 4096 characters)
+     * @param  bool  $preview_url  Enable URL preview
      * @return array Response from WhatsApp API
+     *
      * @throws WhatsAppException
      */
     public function sendMessage(string $to, string $message, bool $preview_url = false): array
@@ -42,25 +46,26 @@ class WhatsAppService
             'type' => 'text',
             'text' => [
                 'preview_url' => $preview_url,
-                'body' => $message
+                'body' => $message,
             ],
         ]);
     }
 
     /**
      * Send a template message
-     * 
-     * @param string $to Phone number in international format
-     * @param string $template Template name
-     * @param string $language Language code (default: en_US)
-     * @param array $params Body text parameters (array of scalar values)
-     * @param array $header Optional header component descriptor.
-     *                      Shape: ['type' => 'image'|'document'|'video'|'text', 'id' => '...']
-     *                      Use 'id' for an uploaded media ID or 'url' for a public link.
-     *                      For text headers use 'text' => '...' instead.
-     * @param array $buttons Optional button components. Each entry:
-     *                       ['sub_type' => 'quick_reply'|'url', 'index' => 0, 'parameters' => [...]]
+     *
+     * @param  string  $to  Phone number in international format
+     * @param  string  $template  Template name
+     * @param  string  $language  Language code (default: en_US)
+     * @param  array  $params  Body text parameters (array of scalar values)
+     * @param  array  $header  Optional header component descriptor.
+     *                         Shape: ['type' => 'image'|'document'|'video'|'text', 'id' => '...']
+     *                         Use 'id' for an uploaded media ID or 'url' for a public link.
+     *                         For text headers use 'text' => '...' instead.
+     * @param  array  $buttons  Optional button components. Each entry:
+     *                          ['sub_type' => 'quick_reply'|'url', 'index' => 0, 'parameters' => [...]]
      * @return array Response from WhatsApp API
+     *
      * @throws WhatsAppException
      */
     public function sendTemplate(
@@ -74,7 +79,7 @@ class WhatsAppService
         $components = [];
 
         // Build header component
-        if (!empty($header)) {
+        if (! empty($header)) {
             $headerParameter = ['type' => $header['type']];
 
             if ($header['type'] === 'image') {
@@ -100,7 +105,7 @@ class WhatsAppService
         }
 
         // Build body component
-        if (!empty($params)) {
+        if (! empty($params)) {
             $components[] = [
                 'type' => 'body',
                 'parameters' => collect($params)->map(function ($p) {
@@ -124,7 +129,7 @@ class WhatsAppService
             'to' => $to,
             'type' => 'template',
             'template' => [
-                'name'     => $template,
+                'name' => $template,
                 'language' => ['code' => $language],
                 'components' => $components,
             ],
@@ -133,12 +138,12 @@ class WhatsAppService
 
     /**
      * Send an image
-     * 
-     * @param string $to Phone number
-     * @param string $imageUrl URL or media ID of the image
-     * @param string|null $caption Optional caption
-     * @param bool $isMediaId Whether the image parameter is a media ID
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $imageUrl  URL or media ID of the image
+     * @param  string|null  $caption  Optional caption
+     * @param  bool  $isMediaId  Whether the image parameter is a media ID
+     *
      * @throws WhatsAppException
      */
     public function sendImage(string $to, string $imageUrl, ?string $caption = null, bool $isMediaId = false): array
@@ -159,13 +164,13 @@ class WhatsAppService
 
     /**
      * Send a document
-     * 
-     * @param string $to Phone number
-     * @param string $documentUrl URL or media ID of the document
-     * @param string|null $filename Filename
-     * @param string|null $caption Optional caption
-     * @param bool $isMediaId Whether the document parameter is a media ID
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $documentUrl  URL or media ID of the document
+     * @param  string|null  $filename  Filename
+     * @param  string|null  $caption  Optional caption
+     * @param  bool  $isMediaId  Whether the document parameter is a media ID
+     *
      * @throws WhatsAppException
      */
     public function sendDocument(string $to, string $documentUrl, ?string $filename = null, ?string $caption = null, bool $isMediaId = false): array
@@ -190,12 +195,12 @@ class WhatsAppService
 
     /**
      * Send a video
-     * 
-     * @param string $to Phone number
-     * @param string $videoUrl URL or media ID of the video
-     * @param string|null $caption Optional caption
-     * @param bool $isMediaId Whether the video parameter is a media ID
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $videoUrl  URL or media ID of the video
+     * @param  string|null  $caption  Optional caption
+     * @param  bool  $isMediaId  Whether the video parameter is a media ID
+     *
      * @throws WhatsAppException
      */
     public function sendVideo(string $to, string $videoUrl, ?string $caption = null, bool $isMediaId = false): array
@@ -216,11 +221,11 @@ class WhatsAppService
 
     /**
      * Send an audio file
-     * 
-     * @param string $to Phone number
-     * @param string $audioUrl URL or media ID of the audio
-     * @param bool $isMediaId Whether the audio parameter is a media ID
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $audioUrl  URL or media ID of the audio
+     * @param  bool  $isMediaId  Whether the audio parameter is a media ID
+     *
      * @throws WhatsAppException
      */
     public function sendAudio(string $to, string $audioUrl, bool $isMediaId = false): array
@@ -237,9 +242,10 @@ class WhatsAppService
 
     /**
      * Upload an image file and get media ID
-     * 
-     * @param string|UploadedFile $file File path or UploadedFile instance
+     *
+     * @param  string|UploadedFile  $file  File path or UploadedFile instance
      * @return string Media ID that can be used with sendImage()
+     *
      * @throws WhatsAppException
      */
     public function uploadImage(string|UploadedFile $file): string
@@ -261,7 +267,7 @@ class WhatsAppService
 
             $result = $this->handleResponse($response);
 
-            if (!isset($result['id'])) {
+            if (! isset($result['id'])) {
                 throw new WhatsAppException('Failed to get media ID from upload response');
             }
 
@@ -270,7 +276,7 @@ class WhatsAppService
             throw $e;
         } catch (\Exception $e) {
             throw new WhatsAppException(
-                'Failed to upload image: ' . $e->getMessage(),
+                'Failed to upload image: '.$e->getMessage(),
                 $e->getCode()
             );
         }
@@ -278,28 +284,30 @@ class WhatsAppService
 
     /**
      * Upload and send an image in one call
-     * 
-     * @param string $to Phone number
-     * @param string|UploadedFile $file File path or UploadedFile instance
-     * @param string|null $caption Optional caption
+     *
+     * @param  string  $to  Phone number
+     * @param  string|UploadedFile  $file  File path or UploadedFile instance
+     * @param  string|null  $caption  Optional caption
      * @return array Response from WhatsApp API
+     *
      * @throws WhatsAppException
      */
     public function uploadAndSendImage(string $to, $file, ?string $caption = null): array
     {
         $mediaId = $this->uploadImage($file);
+
         return $this->sendImage($to, $mediaId, $caption, true);
     }
 
     /**
      * Send location
-     * 
-     * @param string $to Phone number
-     * @param float $latitude Latitude
-     * @param float $longitude Longitude
-     * @param string|null $name Location name
-     * @param string|null $address Location address
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  float  $latitude  Latitude
+     * @param  float  $longitude  Longitude
+     * @param  string|null  $name  Location name
+     * @param  string|null  $address  Location address
+     *
      * @throws WhatsAppException
      */
     public function sendLocation(string $to, float $latitude, float $longitude, ?string $name = null, ?string $address = null): array
@@ -327,13 +335,13 @@ class WhatsAppService
 
     /**
      * Send interactive buttons
-     * 
-     * @param string $to Phone number
-     * @param string $bodyText Button message body
-     * @param array $buttons Array of buttons [['id' => '1', 'title' => 'Button 1'], ...]
-     * @param string|null $headerText Optional header
-     * @param string|null $footerText Optional footer
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $bodyText  Button message body
+     * @param  array  $buttons  Array of buttons [['id' => '1', 'title' => 'Button 1'], ...]
+     * @param  string|null  $headerText  Optional header
+     * @param  string|null  $footerText  Optional footer
+     *
      * @throws WhatsAppException
      */
     public function sendButtons(string $to, string $bodyText, array $buttons, ?string $headerText = null, ?string $footerText = null): array
@@ -348,7 +356,7 @@ class WhatsAppService
                         'reply' => [
                             'id' => $button['id'],
                             'title' => $button['title'],
-                        ]
+                        ],
                     ];
                 })->toArray(),
             ],
@@ -372,14 +380,14 @@ class WhatsAppService
 
     /**
      * Send interactive list
-     * 
-     * @param string $to Phone number
-     * @param string $bodyText List message body
-     * @param string $buttonText Button text to open list
-     * @param array $sections Array of sections with rows
-     * @param string|null $headerText Optional header
-     * @param string|null $footerText Optional footer
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $bodyText  List message body
+     * @param  string  $buttonText  Button text to open list
+     * @param  array  $sections  Array of sections with rows
+     * @param  string|null  $headerText  Optional header
+     * @param  string|null  $footerText  Optional footer
+     *
      * @throws WhatsAppException
      */
     public function sendList(string $to, string $bodyText, string $buttonText, array $sections, ?string $headerText = null, ?string $footerText = null): array
@@ -415,8 +423,8 @@ class WhatsAppService
      * This calls the API directly without going through send() to avoid
      * inserting a spurious outgoing message row in the database.
      *
-     * @param string $messageId Message ID from webhook
-     * @return array
+     * @param  string  $messageId  Message ID from webhook
+     *
      * @throws WhatsAppException
      */
     public function markAsRead(string $messageId): array
@@ -436,7 +444,7 @@ class WhatsAppService
             throw $e;
         } catch (\Exception $e) {
             throw new WhatsAppException(
-                'Failed to mark message as read: ' . $e->getMessage(),
+                'Failed to mark message as read: '.$e->getMessage(),
                 $e->getCode()
             );
         }
@@ -444,11 +452,11 @@ class WhatsAppService
 
     /**
      * Send a reaction to a message
-     * 
-     * @param string $to Phone number
-     * @param string $messageId Message ID to react to
-     * @param string $emoji Emoji to react with (empty string to remove reaction)
-     * @return array
+     *
+     * @param  string  $to  Phone number
+     * @param  string  $messageId  Message ID to react to
+     * @param  string  $emoji  Emoji to react with (empty string to remove reaction)
+     *
      * @throws WhatsAppException
      */
     public function sendReaction(string $to, string $messageId, string $emoji): array
@@ -467,9 +475,10 @@ class WhatsAppService
 
     /**
      * Generic send wrapper for all requests
-     * 
-     * @param array $payload Request payload
+     *
+     * @param  array  $payload  Request payload
      * @return array Response data
+     *
      * @throws WhatsAppException
      */
     protected function send(array $payload): array
@@ -495,7 +504,7 @@ class WhatsAppService
             $dbId = $this->logOutgoingMessage($payload, null, 'failed');
 
             throw new WhatsAppException(
-                'Failed to send WhatsApp message: ' . $e->getMessage(),
+                'Failed to send WhatsApp message: '.$e->getMessage(),
                 $e->getCode(),
                 array_filter(['wa_db_id' => $dbId])
             );
@@ -504,16 +513,17 @@ class WhatsAppService
 
     /**
      * Handle API response
-     * 
-     * @param Response $response HTTP response
+     *
+     * @param  Response  $response  HTTP response
      * @return array Response data
+     *
      * @throws WhatsAppException
      */
     protected function handleResponse(Response $response): array
     {
         $data = $response->json();
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $errorMessage = $data['error']['message'] ?? 'Unknown error occurred';
             $errorCode = $data['error']['code'] ?? $response->status();
 
@@ -529,10 +539,10 @@ class WhatsAppService
 
     /**
      * Log outgoing message to database
-     * 
-     * @param array $payload Request payload
-     * @param array|null $response API response
-     * @param string $status Message status
+     *
+     * @param  array  $payload  Request payload
+     * @param  array|null  $response  API response
+     * @param  string  $status  Message status
      * @return int|null The database record ID, or null if logging failed
      */
     protected function logOutgoingMessage(array $payload, ?array $response, string $status = 'sent'): ?int
@@ -581,21 +591,22 @@ class WhatsAppService
 
     /**
      * Prepare file for upload (validate and extract file data)
-     * 
-     * @param string|UploadedFile $file File path or UploadedFile instance
+     *
+     * @param  string|UploadedFile  $file  File path or UploadedFile instance
      * @return array ['content' => string, 'filename' => string, 'mimeType' => string]
+     *
      * @throws WhatsAppException
      */
     protected function prepareFileForUpload($file): array
     {
         if ($file instanceof UploadedFile) {
             // Handle Laravel UploadedFile
-            if (!$file->isValid()) {
+            if (! $file->isValid()) {
                 throw new WhatsAppException('Invalid uploaded file');
             }
 
             $mimeType = $file->getMimeType();
-            if (!str_starts_with($mimeType, 'image/')) {
+            if (! str_starts_with($mimeType, 'image/')) {
                 throw new WhatsAppException("File must be an image. Got: {$mimeType}");
             }
 
@@ -607,16 +618,16 @@ class WhatsAppService
         }
 
         // Handle file path (string)
-        if (!is_string($file)) {
+        if (! is_string($file)) {
             throw new WhatsAppException('File must be a file path or UploadedFile instance');
         }
 
-        if (!file_exists($file)) {
+        if (! file_exists($file)) {
             throw new WhatsAppException("File not found: {$file}");
         }
 
         $mimeType = mime_content_type($file);
-        if (!str_starts_with($mimeType, 'image/')) {
+        if (! str_starts_with($mimeType, 'image/')) {
             throw new WhatsAppException("File must be an image. Got: {$mimeType}");
         }
 
@@ -629,8 +640,8 @@ class WhatsAppService
 
     /**
      * Verify webhook from WhatsApp (GET request)
-     * 
-     * @param mixed $request Request object
+     *
+     * @param  mixed  $request  Request object
      * @return mixed Challenge string or error response
      */
     public function verifyWebhook($request)

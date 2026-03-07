@@ -15,8 +15,6 @@ class WhatsAppMessageReceived
 
     /**
      * Create a new event instance.
-     *
-     * @param WhatsAppMessage $message
      */
     public function __construct(WhatsAppMessage $message)
     {

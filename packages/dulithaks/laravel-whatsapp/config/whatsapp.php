@@ -121,6 +121,6 @@ return [
     */
     'queue' => [
         'connection' => env('WHATSAPP_QUEUE_CONNECTION', null),
-        'name'       => env('WHATSAPP_QUEUE_NAME', 'default'),
+        'name' => env('WHATSAPP_QUEUE_NAME', 'default'),
     ],
 ];

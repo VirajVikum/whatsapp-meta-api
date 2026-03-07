@@ -31,17 +31,17 @@ class WhatsAppMessageStatusUpdated
     /**
      * Create a new event instance.
      *
-     * @param WhatsAppMessage $message   The updated message model.
-     * @param string          $oldStatus Status before the update.
-     * @param string          $newStatus Status after the update.
+     * @param  WhatsAppMessage  $message  The updated message model.
+     * @param  string  $oldStatus  Status before the update.
+     * @param  string  $newStatus  Status after the update.
      */
     public function __construct(WhatsAppMessage $message, string $oldStatus, string $newStatus)
     {
-        $this->message     = $message;
-        $this->oldStatus   = $oldStatus;
-        $this->newStatus   = $newStatus;
+        $this->message = $message;
+        $this->oldStatus = $oldStatus;
+        $this->newStatus = $newStatus;
         $this->isDelivered = $newStatus === 'delivered';
-        $this->isRead      = $newStatus === 'read';
-        $this->isFailed    = $newStatus === 'failed';
+        $this->isRead = $newStatus === 'read';
+        $this->isFailed = $newStatus === 'failed';
     }
 }

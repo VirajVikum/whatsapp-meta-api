@@ -2,7 +2,6 @@
 
 namespace Duli\WhatsApp\Jobs;
 
-use Carbon\Carbon;
 use Duli\WhatsApp\Events\WhatsAppMessageReceived;
 use Duli\WhatsApp\Models\WhatsAppMessage;
 use Duli\WhatsApp\Support\WebhookHelpers;
@@ -27,8 +26,8 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
     public int $tries = 3;
 
     /**
-     * @param array $message  The single message object from the webhook payload.
-     * @param array $value    The parent 'value' object (contains metadata, contacts…).
+     * @param  array  $message  The single message object from the webhook payload.
+     * @param  array  $value  The parent 'value' object (contains metadata, contacts…).
      */
     public function __construct(
         protected array $message,
@@ -41,10 +40,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             'message' => $this->message,
         ]);
 
-        $messageId = $this->message['id']        ?? null;
-        $from      = $this->message['from']      ?? null;
+        $messageId = $this->message['id'] ?? null;
+        $from = $this->message['from'] ?? null;
         $timestamp = $this->message['timestamp'] ?? null;
-        $type      = $this->message['type']      ?? null;
+        $type = $this->message['type'] ?? null;
 
         Log::info('[ProcessIncomingWhatsAppMessage] Extracted fields', [
             'messageId' => $messageId,
@@ -54,20 +53,22 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         ]);
 
         // ── Validate required fields ─────────────────────────────────────────
-        if (!$messageId || !$from || !$timestamp || !$type) {
+        if (! $messageId || ! $from || ! $timestamp || ! $type) {
             Log::warning('[ProcessIncomingWhatsAppMessage] Missing required message fields', [
                 'messageId' => $messageId,
                 'from' => $from,
                 'timestamp' => $timestamp,
                 'type' => $type,
             ]);
+
             return;
         }
 
-        if (!$this->isValidPhoneNumber($from)) {
+        if (! $this->isValidPhoneNumber($from)) {
             Log::warning('WhatsApp webhook: Invalid phone number format', [
-                'from' => substr($from, 0, 5) . '***',
+                'from' => substr($from, 0, 5).'***',
             ]);
+
             return;
         }
 
@@ -83,22 +84,24 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             'button',
             'reaction',
         ];
-        if (!in_array($type, $validTypes)) {
+        if (! in_array($type, $validTypes)) {
             Log::warning('WhatsApp webhook: Invalid message type', ['type' => $type]);
+
             return;
         }
 
-        if (!is_numeric($timestamp) || $timestamp < 0) {
+        if (! is_numeric($timestamp) || $timestamp < 0) {
             Log::warning('WhatsApp webhook: Invalid timestamp', ['timestamp' => $timestamp]);
+
             return;
         }
 
         // ── Build messageData payload ─────────────────────────────────────────
         $messageData = [
-            'message_id'   => $messageId,
-            'from'         => $from,
-            'timestamp'    => $timestamp,
-            'type'         => $type,
+            'message_id' => $messageId,
+            'from' => $from,
+            'timestamp' => $timestamp,
+            'type' => $type,
             'profile_name' => isset($this->value['contacts'][0]['profile']['name'])
                 ? $this->sanitizeInput($this->value['contacts'][0]['profile']['name'])
                 : null,
@@ -116,10 +119,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             case 'image':
                 $messageData['image'] = [
-                    'id'        => $this->message['image']['id']        ?? null,
+                    'id' => $this->message['image']['id'] ?? null,
                     'mime_type' => $this->message['image']['mime_type'] ?? null,
-                    'sha256'    => $this->message['image']['sha256']    ?? null,
-                    'caption'   => isset($this->message['image']['caption'])
+                    'sha256' => $this->message['image']['sha256'] ?? null,
+                    'caption' => isset($this->message['image']['caption'])
                         ? $this->sanitizeInput($this->message['image']['caption'])
                         : null,
                 ];
@@ -127,10 +130,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             case 'video':
                 $messageData['video'] = [
-                    'id'        => $this->message['video']['id']        ?? null,
+                    'id' => $this->message['video']['id'] ?? null,
                     'mime_type' => $this->message['video']['mime_type'] ?? null,
-                    'sha256'    => $this->message['video']['sha256']    ?? null,
-                    'caption'   => isset($this->message['video']['caption'])
+                    'sha256' => $this->message['video']['sha256'] ?? null,
+                    'caption' => isset($this->message['video']['caption'])
                         ? $this->sanitizeInput($this->message['video']['caption'])
                         : null,
                 ];
@@ -138,21 +141,21 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             case 'audio':
                 $messageData['audio'] = [
-                    'id'        => $this->message['audio']['id']        ?? null,
+                    'id' => $this->message['audio']['id'] ?? null,
                     'mime_type' => $this->message['audio']['mime_type'] ?? null,
-                    'sha256'    => $this->message['audio']['sha256']    ?? null,
+                    'sha256' => $this->message['audio']['sha256'] ?? null,
                 ];
                 break;
 
             case 'document':
                 $messageData['document'] = [
-                    'id'        => $this->message['document']['id']        ?? null,
+                    'id' => $this->message['document']['id'] ?? null,
                     'mime_type' => $this->message['document']['mime_type'] ?? null,
-                    'sha256'    => $this->message['document']['sha256']    ?? null,
-                    'filename'  => isset($this->message['document']['filename'])
+                    'sha256' => $this->message['document']['sha256'] ?? null,
+                    'filename' => isset($this->message['document']['filename'])
                         ? $this->sanitizeInput($this->message['document']['filename'])
                         : null,
-                    'caption'   => isset($this->message['document']['caption'])
+                    'caption' => isset($this->message['document']['caption'])
                         ? $this->sanitizeInput($this->message['document']['caption'])
                         : null,
                 ];
@@ -160,12 +163,12 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             case 'location':
                 $messageData['location'] = [
-                    'latitude'  => $this->message['location']['latitude']  ?? null,
+                    'latitude' => $this->message['location']['latitude'] ?? null,
                     'longitude' => $this->message['location']['longitude'] ?? null,
-                    'name'      => isset($this->message['location']['name'])
+                    'name' => isset($this->message['location']['name'])
                         ? $this->sanitizeInput($this->message['location']['name'])
                         : null,
-                    'address'   => isset($this->message['location']['address'])
+                    'address' => isset($this->message['location']['address'])
                         ? $this->sanitizeInput($this->message['location']['address'])
                         : null,
                 ];
@@ -181,15 +184,15 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
                 if (($interactive['type'] ?? null) === 'button_reply') {
                     $messageData['interactive']['button_reply'] = [
-                        'id'    => $interactive['button_reply']['id']    ?? null,
+                        'id' => $interactive['button_reply']['id'] ?? null,
                         'title' => isset($interactive['button_reply']['title'])
                             ? $this->sanitizeInput($interactive['button_reply']['title'])
                             : null,
                     ];
                 } elseif (($interactive['type'] ?? null) === 'list_reply') {
                     $messageData['interactive']['list_reply'] = [
-                        'id'          => $interactive['list_reply']['id']          ?? null,
-                        'title'       => isset($interactive['list_reply']['title'])
+                        'id' => $interactive['list_reply']['id'] ?? null,
+                        'title' => isset($interactive['list_reply']['title'])
                             ? $this->sanitizeInput($interactive['list_reply']['title'])
                             : null,
                         'description' => isset($interactive['list_reply']['description'])
@@ -201,7 +204,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             case 'button':
                 $messageData['button'] = [
-                    'text'    => isset($this->message['button']['text'])
+                    'text' => isset($this->message['button']['text'])
                         ? $this->sanitizeInput($this->message['button']['text'])
                         : null,
                     'payload' => isset($this->message['button']['payload'])
@@ -213,7 +216,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             case 'reaction':
                 $messageData['reaction'] = [
                     'message_id' => $this->message['reaction']['message_id'] ?? null,
-                    'emoji'      => isset($this->message['reaction']['emoji'])
+                    'emoji' => isset($this->message['reaction']['emoji'])
                         ? $this->sanitizeInput($this->message['reaction']['emoji'])
                         : null,
                 ];
@@ -221,10 +224,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         }
 
         Log::info('WhatsApp Message Received', [
-            'message_id'  => $messageId,
-            'type'        => $type,
-            'timestamp'   => $timestamp,
-            'has_content' => !empty($messageData['text'] ?? $messageData[$type] ?? null),
+            'message_id' => $messageId,
+            'type' => $type,
+            'timestamp' => $timestamp,
+            'has_content' => ! empty($messageData['text'] ?? $messageData[$type] ?? null),
         ]);
 
         // ── Upsert — idempotent against duplicate webhook deliveries ─────────
@@ -261,13 +264,13 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             $isNewRecord = false;
 
             $existing->update([
-                'from_phone'   => $from,
-                'to_phone'     => $toPhone,
-                'direction'    => 'incoming',
+                'from_phone' => $from,
+                'to_phone' => $toPhone,
+                'direction' => 'incoming',
                 'message_type' => $type,
-                'body'         => $body,
-                'status'       => $statusToUse,
-                'payload'      => $messageData,
+                'body' => $body,
+                'status' => $statusToUse,
+                'payload' => $messageData,
             ]);
 
             $waMessage = $existing->fresh();
@@ -281,13 +284,13 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
             $waMessage = WhatsAppMessage::create([
                 'wa_message_id' => $messageId,
-                'from_phone'    => $from,
-                'to_phone'      => $toPhone,
-                'direction'     => 'incoming',
-                'message_type'  => $type,
-                'body'          => $body,
-                'status'        => 'delivered',
-                'payload'       => $messageData,
+                'from_phone' => $from,
+                'to_phone' => $toPhone,
+                'direction' => 'incoming',
+                'message_type' => $type,
+                'body' => $body,
+                'status' => 'delivered',
+                'payload' => $messageData,
             ]);
 
             Log::info('[ProcessIncomingWhatsAppMessage] Message created successfully', [
@@ -306,7 +309,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             } catch (\Exception $e) {
                 Log::error('Failed to mark message as read', [
                     'message_id' => $messageId,
-                    'error'      => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

@@ -21,7 +21,7 @@ class WhatsAppMessage extends Model
     ];
 
     protected $casts = [
-        'payload'           => 'array',
+        'payload' => 'array',
         'status_updated_at' => 'datetime',
     ];
 

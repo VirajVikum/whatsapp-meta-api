@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Duli\WhatsApp\Http\Controllers\WhatsAppWebhookController as BaseController;
-use Illuminate\Support\Facades\Log;
 
 class CustomWebhookController extends BaseController
 {
