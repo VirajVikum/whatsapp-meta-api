@@ -12,7 +12,6 @@ use Livewire\Component;
 class MessageForm extends Component
 {
     public string $phoneInput = '';
-{
     public function sendTemplateMessage(): void
     {
         if (! $this->conversationId) {
