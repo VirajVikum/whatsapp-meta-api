@@ -14,17 +14,49 @@ class MessageForm extends Component
     public string $phoneInput = '';
     public function sendTemplateMessage(): void
     {
+        $phone = '';
+        if ($this->phoneInput) {
+            $input = preg_replace('/[^0-9+]/', '', $this->phoneInput);
+            if (str_starts_with($input, '+94')) {
+                $phone = substr($input, 1);
+            } elseif (str_starts_with($input, '94')) {
+                $phone = $input;
+            } elseif (str_starts_with($input, '0')) {
+                $phone = '94' . substr($input, 1);
+            } else {
+                $phone = $input;
+            }
+        }
+
+        if ($phone) {
+            // Create conversation if not exists
+            $conversation = Conversation::firstOrCreate(
+                ['phone_number' => $phone],
+                ['display_name' => $phone]
+            );
+            try {
+                $templateName = 'demo_reply';
+                $templateLang = 'en';
+                WhatsApp::sendTemplate($phone, $templateName, $templateLang);
+                cache()->put('template_sent_' . $phone, true, now()->addHours(24));
+                $this->dispatch('template-message-sent');
+                $this->phoneInput = '';
+            } catch (\Exception $e) {
+                $this->addError('body', 'Failed to send template message: ' . $e->getMessage());
+            }
+            return;
+        }
+
+        // Fallback to conversationId logic
         if (! $this->conversationId) {
             $this->addError('body', 'No conversation selected');
             return;
         }
-
         $conversation = Conversation::find($this->conversationId);
         if (! $conversation) {
             $this->addError('body', 'Conversation not found');
             return;
         }
-
         try {
             $templateName = 'demo_reply';
             $templateLang = 'en';
@@ -77,7 +109,11 @@ class MessageForm extends Component
         }
 
         if ($phone) {
-            // Send message to custom phone number
+            // Ensure conversation exists for left panel
+            $conversation = Conversation::firstOrCreate(
+                ['phone_number' => $phone],
+                ['display_name' => $phone]
+            );
             try {
                 $response = WhatsApp::sendMessage($phone, $this->body);
                 $messageId = $response['messages'][0]['id'] ?? 'temp_' . time();
@@ -93,6 +129,10 @@ class MessageForm extends Component
                         'payload' => $response,
                     ]
                 );
+                $conversation->update([
+                    'last_message_id' => $messageId,
+                    'last_message_date' => now(),
+                ]);
                 $this->body = '';
                 $this->phoneInput = '';
                 $this->dispatch('message-sent');
