@@ -10,6 +10,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class MessageForm extends Component
+    public string $phoneInput = '';
 {
     public function sendTemplateMessage(): void
     {
@@ -59,26 +60,64 @@ class MessageForm extends Component
     {
         $this->validate();
 
-        if (! $this->conversationId) {
-            $this->addError('body', 'No conversation selected');
+        $phone = '';
+        if ($this->phoneInput) {
+            // Normalize phone number
+            $input = preg_replace('/[^0-9+]/', '', $this->phoneInput);
+            if (str_starts_with($input, '+94')) {
+                $phone = substr($input, 1); // Remove '+'
+            } elseif (str_starts_with($input, '94')) {
+                $phone = $input;
+            } elseif (str_starts_with($input, '0')) {
+                $phone = '94' . substr($input, 1);
+            } else {
+                // Assume already normalized or fallback
+                $phone = $input;
+            }
+        }
 
+        if ($phone) {
+            // Send message to custom phone number
+            try {
+                $response = WhatsApp::sendMessage($phone, $this->body);
+                $messageId = $response['messages'][0]['id'] ?? 'temp_' . time();
+                WhatsAppMessage::updateOrCreate(
+                    ['wa_message_id' => $messageId],
+                    [
+                        'from_phone' => config('whatsapp.phone_id'),
+                        'to_phone' => $phone,
+                        'direction' => 'outgoing',
+                        'message_type' => 'text',
+                        'body' => $this->body,
+                        'status' => 'sent',
+                        'payload' => $response,
+                    ]
+                );
+                $this->body = '';
+                $this->phoneInput = '';
+                $this->dispatch('message-sent');
+            } catch (\Exception $e) {
+                $this->addError('body', 'Failed to send message: ' . $e->getMessage());
+            }
             return;
         }
 
+        // ...existing code for conversationId logic...
+        if (! $this->conversationId) {
+            $this->addError('body', 'No conversation selected');
+            return;
+        }
         $conversation = Conversation::find($this->conversationId);
         if (! $conversation) {
             $this->addError('body', 'Conversation not found');
-
             return;
         }
-
         try {
             // Check if last incoming message from user was more than 24 hours ago
             $lastIncoming = WhatsAppMessage::where('from_phone', $conversation->phone_number)
                 ->where('direction', 'incoming')
                 ->orderBy('created_at', 'desc')
                 ->first();
-
             $needsTemplate = false;
             if ($lastIncoming) {
                 $lastTime = $lastIncoming->created_at;
@@ -86,35 +125,22 @@ class MessageForm extends Component
                     $needsTemplate = true;
                 }
             } else {
-                // No previous incoming message, treat as new conversation
                 $needsTemplate = true;
             }
-
-
-            // Send template message if required, and only send user's message after
             if ($needsTemplate && !cache('template_sent_' . $conversation->phone_number)) {
                 try {
-                    // Replace 'hello_world' with your actual template name
                     $templateName = 'demo_reply';
                     $templateLang = 'en';
                     WhatsApp::sendTemplate($conversation->phone_number, $templateName, $templateLang);
                     cache()->put('template_sent_' . $conversation->phone_number, true, now()->addHours(24));
-                    // Wait a short moment to ensure template is delivered first
-                    usleep(500000); // 0.5 second
-                } catch (\Exception $e) {
-                    // Optionally: handle template send failure
-                }
+                    usleep(500000);
+                } catch (\Exception $e) {}
             }
-
-            // Now send user's message
             $response = WhatsApp::sendMessage(
                 $conversation->phone_number,
                 $this->body
             );
-
             $messageId = $response['messages'][0]['id'] ?? 'temp_' . time();
-
-            // Save or update message to database (webhook may have already saved it)
             WhatsAppMessage::updateOrCreate(
                 ['wa_message_id' => $messageId],
                 [
@@ -127,12 +153,9 @@ class MessageForm extends Component
                     'payload' => $response,
                 ]
             );
-
-            // Update conversation
             $conversation->update([
                 'last_message_date' => now(),
             ]);
-
             $this->body = '';
             $this->dispatch('message-sent');
         } catch (\Exception $e) {

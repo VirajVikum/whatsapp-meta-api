@@ -1,5 +1,12 @@
 <div @if($this->conversationId) class="border-t border-gray-200 bg-white p-4 shadow-lg mb-4 rounded-xl" @else class="hidden" @endif>
     <form wire:submit="sendMessage" class="flex items-center gap-3">
+        <!-- Phone Number Input -->
+        <input
+            type="text"
+            wire:model="phoneInput"
+            placeholder="Enter phone number"
+            class="border border-gray-300 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-green-500 transition w-48"
+        />
         <!-- Attachment Button -->
         <button
             type="button"
