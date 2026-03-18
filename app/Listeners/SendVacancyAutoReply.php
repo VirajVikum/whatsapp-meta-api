@@ -75,8 +75,8 @@ class SendVacancyAutoReply
             if ($needsTemplate && !cache('template_sent_'.$senderPhone)) {
                 try {
                     // Replace 'hello_world' with your actual template name
-                    $templateName = 'hello_world';
-                    $templateLang = 'en_US';
+                    $templateName = 'demo_reply';
+                    $templateLang = 'en';
                     \Duli\WhatsApp\Facades\WhatsApp::sendTemplate($senderPhone, $templateName, $templateLang);
                     cache()->put('template_sent_'.$senderPhone, true, now()->addHours(24));
                     \Log::info('Template message sent before auto-reply', [

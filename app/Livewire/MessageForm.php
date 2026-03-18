@@ -67,20 +67,23 @@ class MessageForm extends Component
                 $needsTemplate = true;
             }
 
-            // Send template message if required
+
+            // Send template message if required, and only send user's message after
             if ($needsTemplate && !cache('template_sent_' . $conversation->phone_number)) {
                 try {
                     // Replace 'hello_world' with your actual template name
-                    $templateName = 'hello_world';
-                    $templateLang = 'en_US';
+                    $templateName = 'demo_reply';
+                    $templateLang = 'en';
                     WhatsApp::sendTemplate($conversation->phone_number, $templateName, $templateLang);
                     cache()->put('template_sent_' . $conversation->phone_number, true, now()->addHours(24));
+                    // Wait a short moment to ensure template is delivered first
+                    usleep(500000); // 0.5 second
                 } catch (\Exception $e) {
                     // Optionally: handle template send failure
                 }
             }
 
-            // Send message via WhatsApp API
+            // Now send user's message
             $response = WhatsApp::sendMessage(
                 $conversation->phone_number,
                 $this->body
