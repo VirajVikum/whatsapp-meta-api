@@ -1,5 +1,17 @@
+
 <div class="flex-1 flex flex-col">
     @if($this->conversation)
+        <!-- Load More Button (moved above messages) -->
+        @if($this->showLoadMore)
+            <div class="p-4 border-b border-gray-200 bg-white flex justify-center z-10">
+                <button
+                    wire:click="loadOlderMessages"
+                    class="bg-green-50 hover:bg-green-100 text-green-700 font-medium py-2 px-6 rounded-full transition text-sm border border-green-200"
+                >
+                    ↑ Older Messages
+                </button>
+            </div>
+        @endif
         <!-- Messages Container -->
         <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-white" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
             @forelse($this->messages as $message)
@@ -26,18 +38,6 @@
                 </div>
             @endforelse
         </div>
-
-        <!-- Load More Button -->
-        @if($this->showLoadMore)
-            <div class="p-4 border-t border-gray-200 bg-white flex justify-center">
-                <button
-                    wire:click="loadOlderMessages"
-                    class="bg-green-50 hover:bg-green-100 text-green-700 font-medium py-2 px-6 rounded-full transition text-sm border border-green-200"
-                >
-                    ↑ Older Messages
-                </button>
-            </div>
-        @endif
     @else
         <div class="flex-1 flex items-center justify-center bg-white text-gray-400">
             <p class="text-sm">Select a conversation to start messaging</p>
