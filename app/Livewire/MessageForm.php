@@ -98,6 +98,7 @@ class MessageForm extends Component
                 $this->dispatch('message-sent');
             } catch (\Exception $e) {
                 $this->addError('body', 'Failed to send message: ' . $e->getMessage());
+                // Do not clear phoneInput on error
             }
             return;
         }
