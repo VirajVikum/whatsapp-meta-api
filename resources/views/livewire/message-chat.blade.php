@@ -13,7 +13,7 @@
             </div>
         @endif
         <!-- Messages Container -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-white" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
+        <div class="flex-1 overflow-y-auto p-6 pb-32 space-y-4 bg-white" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
             @forelse($this->messages as $message)
                 <div class="flex {{ $message['direction'] === 'incoming' ? 'justify-start' : 'justify-end' }} animate-fadeIn">
                     <div class="max-w-xs {{ $message['direction'] === 'incoming' ? 'bg-white text-gray-900 shadow-sm' : 'bg-green-100 text-gray-900' }} rounded-lg px-4 py-2">
