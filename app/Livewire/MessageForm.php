@@ -10,6 +10,29 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class MessageForm extends Component
+    public function sendTemplateMessage(): void
+    {
+        if (! $this->conversationId) {
+            $this->addError('body', 'No conversation selected');
+            return;
+        }
+
+        $conversation = Conversation::find($this->conversationId);
+        if (! $conversation) {
+            $this->addError('body', 'Conversation not found');
+            return;
+        }
+
+        try {
+            $templateName = 'demo_reply';
+            $templateLang = 'en';
+            WhatsApp::sendTemplate($conversation->phone_number, $templateName, $templateLang);
+            cache()->put('template_sent_' . $conversation->phone_number, true, now()->addHours(24));
+            $this->dispatch('template-message-sent');
+        } catch (\Exception $e) {
+            $this->addError('body', 'Failed to send template message: ' . $e->getMessage());
+        }
+    }
 {
     public ?int $conversationId = null;
 
