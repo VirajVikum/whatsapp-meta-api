@@ -34,7 +34,6 @@ class MessageForm extends Component
             $this->addError('body', 'Failed to send template message: ' . $e->getMessage());
         }
     }
-{
     public ?int $conversationId = null;
 
     #[Validate('required|string|max:4096')]
