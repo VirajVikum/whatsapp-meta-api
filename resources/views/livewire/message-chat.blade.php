@@ -12,31 +12,33 @@
                 </button>
             </div>
         @endif
-        <!-- Messages Container -->
-        <div class="flex-1 overflow-y-auto p-6 pb-32 space-y-4 bg-white scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
-            @forelse($this->messages as $message)
-                <div class="flex {{ $message['direction'] === 'incoming' ? 'justify-start' : 'justify-end' }} animate-fadeIn">
-                    <div class="max-w-xs {{ $message['direction'] === 'incoming' ? 'bg-white text-gray-900 shadow-sm' : 'bg-green-100 text-gray-900' }} rounded-lg px-4 py-2">
-                        <p class="text-sm break-words">{{ $message['body'] }}</p>
-                        <div class="flex items-center justify-end gap-1 mt-1">
-                            <p class="text-xs {{ $message['direction'] === 'incoming' ? 'text-gray-500' : 'text-gray-600' }}">
-                                {{ \Carbon\Carbon::parse($message['created_at'])->format('H:i') }}
-                            </p>
-                            @if($message['direction'] === 'outgoing')
-                                <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                                </svg>
-                            @endif
+        <!-- Messages Container with Scrollbar -->
+        <div class="relative flex-1">
+            <div class="absolute inset-0 h-full w-full overflow-y-auto p-6 pb-32 space-y-4 bg-white scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
+                @forelse($this->messages as $message)
+                    <div class="flex {{ $message['direction'] === 'incoming' ? 'justify-start' : 'justify-end' }} animate-fadeIn">
+                        <div class="max-w-xs {{ $message['direction'] === 'incoming' ? 'bg-white text-gray-900 shadow-sm' : 'bg-green-100 text-gray-900' }} rounded-lg px-4 py-2">
+                            <p class="text-sm break-words">{{ $message['body'] }}</p>
+                            <div class="flex items-center justify-end gap-1 mt-1">
+                                <p class="text-xs {{ $message['direction'] === 'incoming' ? 'text-gray-500' : 'text-gray-600' }}">
+                                    {{ \Carbon\Carbon::parse($message['created_at'])->format('H:i') }}
+                                </p>
+                                @if($message['direction'] === 'outgoing')
+                                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                                    </svg>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="flex-1 flex items-center justify-center text-gray-500">
-                    <div class="text-center">
-                        <p class="text-sm">No messages yet</p>
+                @empty
+                    <div class="flex-1 flex items-center justify-center text-gray-500">
+                        <div class="text-center">
+                            <p class="text-sm">No messages yet</p>
+                        </div>
                     </div>
-                </div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     @else
         <div class="flex-1 flex items-center justify-center bg-white text-gray-400">
