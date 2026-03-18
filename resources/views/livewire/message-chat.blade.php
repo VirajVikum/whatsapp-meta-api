@@ -13,7 +13,7 @@
             </div>
         @endif
         <!-- Messages Container -->
-        <div class="flex-1 overflow-y-auto p-6 pb-32 space-y-4 bg-white" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
+        <div class="flex-1 overflow-y-auto p-6 pb-32 space-y-4 bg-white scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f5f5f5%22 width=%22100%22 height=%22100%22/></svg>')">
             @forelse($this->messages as $message)
                 <div class="flex {{ $message['direction'] === 'incoming' ? 'justify-start' : 'justify-end' }} animate-fadeIn">
                     <div class="max-w-xs {{ $message['direction'] === 'incoming' ? 'bg-white text-gray-900 shadow-sm' : 'bg-green-100 text-gray-900' }} rounded-lg px-4 py-2">
@@ -58,6 +58,21 @@
     }
     .animate-fadeIn {
         animation: fadeIn 0.3s ease-in;
+    }
+    /* Custom scrollbar for messages */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+    }
+    .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 8px;
+    }
+    .scrollbar-track-gray-100::-webkit-scrollbar-track {
+        background: #f3f4f6;
+        border-radius: 8px;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
     }
 </style>
 
