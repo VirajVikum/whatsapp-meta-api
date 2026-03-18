@@ -65,9 +65,11 @@
                 </div>
 
                 <!-- Messages and Form Container -->
-                <div class="flex-1 flex flex-col overflow-hidden">
+                <div class="flex-1 flex flex-col overflow-hidden relative">
                     <livewire:message-chat lazy />
-                    <livewire:message-form />
+                    <div class="sticky bottom-0 left-0 w-full bg-white z-20">
+                        <livewire:message-form />
+                    </div>
                 </div>
             </div>
         </div>
