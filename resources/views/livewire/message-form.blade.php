@@ -1,4 +1,4 @@
-<div @if($this->conversationId) class="border-t border-gray-200 bg-white p-4" @else class="hidden" @endif>
+<div @if($this->conversationId) class="border-t border-gray-200 bg-white p-4 shadow-lg mb-4 rounded-xl" @else class="hidden" @endif>
     <form wire:submit="sendMessage" class="flex items-center gap-3">
         <!-- Attachment Button -->
         <button
