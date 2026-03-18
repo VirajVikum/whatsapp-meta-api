@@ -10,6 +10,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class MessageForm extends Component
+{
     public function sendTemplateMessage(): void
     {
         if (! $this->conversationId) {
