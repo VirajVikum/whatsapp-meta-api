@@ -50,13 +50,43 @@ class MessageForm extends Component
         }
 
         try {
+            // Check if last incoming message from user was more than 24 hours ago
+            $lastIncoming = WhatsAppMessage::where('from_phone', $conversation->phone_number)
+                ->where('direction', 'incoming')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $needsTemplate = false;
+            if ($lastIncoming) {
+                $lastTime = $lastIncoming->created_at;
+                if (!$lastTime || $lastTime->lt(now()->subHours(24))) {
+                    $needsTemplate = true;
+                }
+            } else {
+                // No previous incoming message, treat as new conversation
+                $needsTemplate = true;
+            }
+
+            // Send template message if required
+            if ($needsTemplate && !cache('template_sent_' . $conversation->phone_number)) {
+                try {
+                    // Replace 'hello_world' with your actual template name
+                    $templateName = 'hello_world';
+                    $templateLang = 'en_US';
+                    WhatsApp::sendTemplate($conversation->phone_number, $templateName, $templateLang);
+                    cache()->put('template_sent_' . $conversation->phone_number, true, now()->addHours(24));
+                } catch (\Exception $e) {
+                    // Optionally: handle template send failure
+                }
+            }
+
             // Send message via WhatsApp API
             $response = WhatsApp::sendMessage(
                 $conversation->phone_number,
                 $this->body
             );
 
-            $messageId = $response['messages'][0]['id'] ?? 'temp_'.time();
+            $messageId = $response['messages'][0]['id'] ?? 'temp_' . time();
 
             // Save or update message to database (webhook may have already saved it)
             WhatsAppMessage::updateOrCreate(
@@ -80,7 +110,7 @@ class MessageForm extends Component
             $this->body = '';
             $this->dispatch('message-sent');
         } catch (\Exception $e) {
-            $this->addError('body', 'Failed to send message: '.$e->getMessage());
+            $this->addError('body', 'Failed to send message: ' . $e->getMessage());
         }
     }
 
