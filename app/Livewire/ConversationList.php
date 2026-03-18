@@ -14,13 +14,20 @@ class ConversationList extends Component
     #[Computed]
     public function conversations()
     {
-        // Get all unique phone numbers from incoming messages (from_phone only)
-        $uniquePhones = WhatsAppMessage::select('from_phone')
+        // Get all unique phone numbers from both incoming and outgoing messages
+        $fromPhones = WhatsAppMessage::select('from_phone')
             ->distinct()
             ->whereNotNull('from_phone')
             ->pluck('from_phone')
             ->filter()
             ->toArray();
+        $toPhones = WhatsAppMessage::select('to_phone')
+            ->distinct()
+            ->whereNotNull('to_phone')
+            ->pluck('to_phone')
+            ->filter()
+            ->toArray();
+        $uniquePhones = array_unique(array_merge($fromPhones, $toPhones));
 
         // Get or create conversations for each phone
         $conversations = [];
