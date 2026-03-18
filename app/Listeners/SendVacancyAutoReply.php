@@ -147,6 +147,28 @@ Please send us your inquiry. We will be happy to share more details with you.';
                 'sender_phone' => $senderPhone,
                 'message_id' => $message->wa_message_id,
             ]);
+                // Save auto-reply message to database
+                $conversation = \App\Models\Conversation::firstOrCreate(
+                    ['phone_number' => $senderPhone],
+                    ['display_name' => $senderPhone]
+                );
+                $autoReplyId = 'autoreply_' . $message->wa_message_id;
+                \App\Models\WhatsAppMessage::updateOrCreate(
+                    ['wa_message_id' => $autoReplyId],
+                    [
+                        'from_phone' => config('whatsapp.phone_id'),
+                        'to_phone' => $senderPhone,
+                        'direction' => 'outgoing',
+                        'message_type' => 'text',
+                        'body' => $autoReplyText,
+                        'status' => 'sent',
+                        'payload' => [],
+                    ]
+                );
+                $conversation->update([
+                    'last_message_id' => $autoReplyId,
+                    'last_message_date' => now(),
+                ]);
         } catch (\Exception $e) {
             \Log::error('Failed to send auto-reply', [
                 'phone' => $senderPhone,
