@@ -54,6 +54,44 @@ class SendVacancyAutoReply
             return;
         }
 
+            // Check if last incoming message from user was more than 24 hours ago
+            $lastIncoming = \App\Models\WhatsAppMessage::where('from_phone', $senderPhone)
+                ->where('direction', 'incoming')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $needsTemplate = false;
+            if ($lastIncoming) {
+                $lastTime = $lastIncoming->created_at;
+                if (!$lastTime || $lastTime->lt(now()->subHours(24))) {
+                    $needsTemplate = true;
+                }
+            } else {
+                // No previous incoming message, treat as new conversation
+                $needsTemplate = true;
+            }
+
+            // Send template message if required
+            if ($needsTemplate && !cache('template_sent_'.$senderPhone)) {
+                try {
+                    // Replace 'hello_world' with your actual template name
+                    $templateName = 'hello_world';
+                    $templateLang = 'en_US';
+                    \Duli\WhatsApp\Facades\WhatsApp::sendTemplate($senderPhone, $templateName, $templateLang);
+                    cache()->put('template_sent_'.$senderPhone, true, now()->addHours(24));
+                    \Log::info('Template message sent before auto-reply', [
+                        'sender_phone' => $senderPhone,
+                        'template' => $templateName,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send template message', [
+                        'phone' => $senderPhone,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Optionally: return or continue to auto-reply
+                }
+            }
+
         // Determine which auto-reply to send
         $autoReplyText = null;
 
