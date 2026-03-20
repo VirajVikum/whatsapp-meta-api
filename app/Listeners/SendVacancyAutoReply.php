@@ -39,7 +39,7 @@ class SendVacancyAutoReply
         $bodyLower = strtolower($body);
 
         // Skip "ok/OK/Ok" messages - don't reply
-        if (in_array($body, ['ok', 'OK', 'Ok'])) {
+        if (in_array($body, ['ok', 'OK', 'Ok', 'Okay','Noted','Thank you', 'Thanks'])) {
             \Log::debug('Skipping OK message - no reply needed', ['id' => $message->wa_message_id]);
 
             return;
